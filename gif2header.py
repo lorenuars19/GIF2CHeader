@@ -1,5 +1,4 @@
 from PIL import Image, ImageSequence
-from colorama import init, Fore
 import PIL
 import os
 
