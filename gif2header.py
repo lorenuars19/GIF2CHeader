@@ -4,19 +4,18 @@ import os
 import sys
 
 
-filename = "_Bootscreen.h"
-gif_name = "anim.gif"
+out_name        = "_Bootscreen.h"
+gif_name        = "anim.gif"
 
-frame_ms = 800
-auto_ms = True
-auto_ms_mult = 10
+frame_ms        = 800
+auto_ms         = True
+auto_ms_mult    = 10
 
-total_loops = 2
+total_loops     = 2
 
-out_width = 128
-out_height = 64
-
-
+out_width       = 128
+out_height      = 64
+invert          = False
 
 def printHeader():
 
@@ -39,12 +38,13 @@ def printHeader():
         "*                                                                                                      *" + '\n'
         "* **************************************************************************************************** *" + '\n'
         )
-    if os.path.exists(filename):
-        os.remove(filename)
+
+    if os.path.exists(out_name):
+        os.remove(out_name)
     try:
-        f = open(filename, "x")
+        f = open(out_name, "x")
     except:
-        print ("IOError : Can't create " + filename)
+        print ("IOError : Can't create " + out_name)
         sys.exit(1)
 
     if auto_ms:
@@ -97,16 +97,15 @@ def printHeader():
     "#define CUSTOM_BOOTSCREEN_FRAME_TIME " + str(frame_ms) + " // (ms)" + "\n"
     "#define CUSTOM_BOOTSCREEN_BMPWIDTH   " + str(out_width) + ('\n' * 2))
 
-    fr_num = 0
-
+    frame_index = 0
     for frame in ImageSequence.Iterator(gif):
         bw = frame.convert("1")
         final = bw.resize((out_width, out_height), PIL.Image.BILINEAR)
 
-        if fr_num == 0:
+        if frame_index == 0:
             f.write ("const unsigned char custom_start_bmp[] PROGMEM = {\n\t")
         else:
-            f.write ("const unsigned char custom_start_bmp" + str(fr_num) + "[] PROGMEM = {\n\t")
+            f.write ("const unsigned char custom_start_bmp" + str(frame_index) + "[] PROGMEM = {\n\t")
 
         data = list(final.getdata(0))
         i = 1
@@ -118,18 +117,17 @@ def printHeader():
                 n = 0
                 combine = 0
                 f.write('B')
-                while n < 8 and x < out_width:
+                while n <= 8 and x < out_width:
                     test = final.getpixel((x,y))
-
-                    if test == 0:
+                    if test == invert:
                         f.write('0')
                     else:
                         f.write('1')
                     n = n + 1
                     x = x + 1
-                while n < 8:
-                    f.write ('0')
-                    n = n + 1
+                # while n < 8:
+                #     f.write ('0')
+                #     n = n + 1
                 if x < out_width:
                     f.write (',')
                 x = x + 1
@@ -139,20 +137,20 @@ def printHeader():
             else:
                 f.write ("\n")
         f.write ("};\n")
-        print("> frame " + str(fr_num) + "\twritten to \t'" + filename + "'\t\t input.size : " + str(frame.size) + "\tfinal.size : " + str(final.size))
-        fr_num = fr_num + 1
+        print("> frame " + str(frame_index) + "\twritten to \t'" + out_name + "'\t\t input.size : " + str(frame.size) + "\tfinal.size : " + str(final.size))
+        frame_index = frame_index + 1
 
     f.write("\nconst unsigned char * const custom_bootscreen_animation[] PROGMEM = {\n\t")
-    fr_tot = fr_num
-    fr_num = 0
+    fr_tot = frame_index
+    frame_index = 0
     loop_num = 0
 
     while loop_num <= total_loops:
-        fr_num = 0
-        while fr_num <= fr_tot:
-            f.write("custom_start_bmp" + str(fr_num))
+        frame_index = 0
+        while frame_index <= fr_tot:
+            f.write("custom_start_bmp" + str(frame_index))
             f.write(", ")
-            fr_num = fr_num + 1
+            frame_index = frame_index + 1
         f.write("custom_start_bmp,\n")
 
         if loop_num < total_loops:
@@ -160,7 +158,7 @@ def printHeader():
         loop_num = loop_num + 1
     f.write("};\n")
 
-    print ("\n> (" + str(fr_tot) + " frames * " + str(total_loops) + " loops) = " + str(fr_tot * total_loops) + " total frame(s) in array written to '" + filename + "'\n")
+    print ("\n> (" + str(fr_tot) + " frames * " + str(total_loops) + " loops) = " + str(fr_tot * total_loops) + " total frame(s) in array written to '" + out_name + "'\n")
     f.write(('\n' * 2) +
         "/*" + '\n'
         "* **************************************************************************************************** *" + '\n'
@@ -180,7 +178,7 @@ def printHeader():
     print ("<<< closing " + str(gif) + " a.k.a. '" + gif_name + "'")
     gif.close()
     print ("> SUCCESS <")
-    print("<<< closing '" + filename + "'")
+    print("<<< closing '" + out_name + "'")
     f.close()
     print ("> SUCCESS <")
 
