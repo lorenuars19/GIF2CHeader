@@ -71,7 +71,7 @@ def printHeader():
     " */" + "\n"
     "" + "\n"
     "#define CUSTOM_BOOTSCREEN_ANIMATED" + "\n"
-    "#define CUSTOM_BOOTSCREEN_FRAME_TIME " + str(frame_ms) + "// (ms)" + "\n"
+    "#define CUSTOM_BOOTSCREEN_FRAME_TIME " + str(frame_ms) + " // (ms)" + "\n"
     "#define CUSTOM_BOOTSCREEN_BMPWIDTH   " + str(out_width) + ('\n' * 2))
 
     gif = Image.open('anim.gif')
@@ -79,7 +79,7 @@ def printHeader():
 
     for frame in ImageSequence.Iterator(gif):
         bw = frame.convert("1")
-        final = bw.resize((out_width, out_height), PIL.Image.NEAREST)
+        final = bw.resize((out_width, out_height), PIL.Image.BILINEAR)
 
         if fr_num == 0:
             f.write ("const unsigned char custom_start_bmp[] PROGMEM = {\n\t")
@@ -89,17 +89,37 @@ def printHeader():
         i = 1
         data = list(final.getdata(0))
 
-        for elem in data:
-            elbin = bin(elem)
-            f.write (format(elem, '#04X'))
-            if i < len(data):
-                f.write (',')
-            if i % out_width == 0:
+        x = 0
+        y = 0
+        print ("B" + format(final.getpixel((x,y)), '08b'))
+        while y < out_height:
+            x = 0
+            while x < out_width:
+                n = 0
+                combine = 0
+                while n < 8 and x < out_width:
+                    test = final.getpixel((x,y))
+##                    print (" TEST " + format(test, '07b'), end=' : ')
+                    if test == 0:
+                        f.write('1')
+                    else:
+                        f.write('0')
+                    n = n + 1
+                    x = x + 1
+                while n < 8:
+                    f.write ('0')
+                    n = n + 1
+                if x < out_width:
+                    f.write (',')
+                x = x + 1
+            y = y + 1
+            if y < out_height:
                 f.write ("\n\t")
-                i = 0
-            i = i + 1
-        f.write ("\n};\n")
-
+            else:
+                f.write ("\n")
+        f.write ("};\n")
+        
+        
         if fr_num == 0:
             print("> " + str(fr_num) + "\tframe written to \t'" + filename + "'\t\t input.size : " + str(frame.size) + "\tfinal.size : " + str(final.size))
         print("> " + str(fr_num + 1) + "\tframe(s) written to \t'" + filename + "'\t\t input.size : " + str(frame.size) + "\tfinal.size : " + str(final.size))
