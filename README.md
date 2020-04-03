@@ -3,7 +3,7 @@ Simple Python script to make `_Bootscreen.h` from `anim.gif`
 Useful for converting animation into custom [Marlin 2.x](https://marlinfw.org/) Bootscreen
 For good results I recommend to use with 2:1 size ratio file (default size is 128x64 px)
 
-You will need to install : 
+You will need to install :
 Pillow by `pip install Pillow`for the script to work.
 ## Usage
 
@@ -17,11 +17,16 @@ Enjoy .
 
 ## Settings
 **At the top of the script you will find 5 variables**:
-- *filename*	:	the output filename
-- *gif_name*	:	the input file name
-- *frame_ms*	:	tells to Marlin how many milliseconds per frame (I advise you to set this between 500 and 1500, over or under will be too short or too long)
-- *out_width*	:	output resized width
-- *out_heigh*	:	output resized height
+- filename = *string*				:	the output filename
+- gif_name = *string*				:	the input file name
+
+- frame_ms = *number*			:	tells to Marlin frame duration in ms
+- auto_ms = *boolean* 			: 	set frame_ms to gif.info['duration']
+- auto_ms_mult = *number*	:	set multiplier for auto_ms 	
+-	total_loops = *number*		:	set number of loops
+
+- out_width = *number*		:	output resized width
+- out_heigh	 = *number*		:	output resized height
 
 ### Note
 I included a bit of ASCII art for the 'eye-candy' 
