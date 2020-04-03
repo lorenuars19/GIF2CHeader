@@ -17,15 +17,17 @@ Enjoy .
 
 ## Settings
 **At the top of the script you will find these variables**:
-- out_name      = *string*	:	the output file name
-- gif_name      = *string*	:	the input file name
-- frame_ms      = *number*	:	tells to Marlin frame duration in ms
-- auto_ms       = *boolean* : set to true to let the script determine from the 1st frame's duration
-- auto_ms_mult  = *number*	:	set multiplier for auto_ms 	
-- total_loops   = *number*	:	set number of loops
-- out_width     = *number*	:	output resized width
-- out_heigh	    = *number*	:	output resized height
-- invert        = *boolean* : set to True to invert the colors
+Name 					| Type 			| Descritpion
+--------------|-----------|----------------------------------------------------------------------
+out_name			| *string*	|	the output file name
+gif_name      | *string*	|	the input file name
+frame_ms      | *number*	|	tells to Marlin frame duration in ms
+auto_ms       | *boolean* | set to true to let the script determine from the 1st frame's duration
+auto_ms_mult	| *number*	|	set multiplier for auto_ms 	
+total_loops		| *number*	|	set number of loops
+out_width			| *number*	|	output resized width
+out_heigh			| *number*	|	output resized height
+invert				| *boolean* | set to True to invert the colors
 
 ### Note
 I included a bit of ASCII art for the 'eye-candy'
