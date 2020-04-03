@@ -26,7 +26,7 @@ auto_ms       | boolean | set to true to let the script determine from the 1st f
 auto_ms_mult	| number	|	set multiplier for auto_ms 	
 total_loops		| number	|	set number of loops
 out_width			| number	|	output resized width
-out_heigh			| number	|	output resized height
+out_height		| number	|	output resized height
 invert				| boolean | set to True to invert the colors
 
 ### Note
