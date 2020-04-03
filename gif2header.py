@@ -1,19 +1,34 @@
 from PIL import Image, ImageSequence
 import PIL
 import os
+import sys
 
 
 filename = "_Bootscreen.h"
-gif_name = 'anim.gif'
+gif_name = "anim.gif"
+
 frame_ms = 800
+auto_ms = True
+auto_ms_mult = 10
+
+total_loops = 2
+
 out_width = 128
 out_height = 64
 
 
+
 def printHeader():
+
+    try:
+        gif = Image.open(gif_name)
+    except FileNotFoundError:
+        print ("IO ERROR : File " + gif_name + " not found")
+        sys.exit(1)
+
     print (
         "* **************************************************************************************************** *" + '\n'
-        "*  BY :                                                                                                *" + '\n'  
+        "*  BY :                                                                                                *" + '\n'
         "*  _______  ______    _______  _______  ___   _  __   __  _     _  _______  __   __  _______  _______  *" + '\n'
         "* |       ||    _ |  |       ||   _   ||   | | ||  | |  || | _ | ||   _   ||  | |  ||       ||       | *" + '\n'
         "* |    ___||   | ||  |    ___||  |_|  ||   |_| ||  |_|  || || || ||  |_|  ||  |_|  ||    ___||  _____| *" + '\n'
@@ -24,9 +39,17 @@ def printHeader():
         "*                                                                                                      *" + '\n'
         "* **************************************************************************************************** *" + '\n'
         )
+    if os.path.exists(filename):
+        os.remove(filename)
+    try:
+        f = open(filename, "x")
+    except:
+        print ("IOError : Can't create " + filename)
+        sys.exit(1)
 
-    os.remove(filename)
-    f = open(filename, "x")
+    if auto_ms:
+        frame_ms = gif.info['duration'] * auto_ms_mult
+
     f.write(
         "/*" + '\n'
         "* **************************************************************************************************** *" + '\n'
@@ -74,7 +97,6 @@ def printHeader():
     "#define CUSTOM_BOOTSCREEN_FRAME_TIME " + str(frame_ms) + " // (ms)" + "\n"
     "#define CUSTOM_BOOTSCREEN_BMPWIDTH   " + str(out_width) + ('\n' * 2))
 
-    gif = Image.open('anim.gif')
     fr_num = 0
 
     for frame in ImageSequence.Iterator(gif):
@@ -84,26 +106,25 @@ def printHeader():
         if fr_num == 0:
             f.write ("const unsigned char custom_start_bmp[] PROGMEM = {\n\t")
         else:
-            f.write ("const unsigned char custom_start_bmp" + str(fr_num) + "[] PROGMEM = {\n\t")        
+            f.write ("const unsigned char custom_start_bmp" + str(fr_num) + "[] PROGMEM = {\n\t")
 
-        i = 1
         data = list(final.getdata(0))
-
+        i = 1
         x = 0
         y = 0
-        print ("B" + format(final.getpixel((x,y)), '08b'))
         while y < out_height:
             x = 0
             while x < out_width:
                 n = 0
                 combine = 0
+                f.write('B')
                 while n < 8 and x < out_width:
                     test = final.getpixel((x,y))
-##                    print (" TEST " + format(test, '07b'), end=' : ')
+
                     if test == 0:
-                        f.write('1')
-                    else:
                         f.write('0')
+                    else:
+                        f.write('1')
                     n = n + 1
                     x = x + 1
                 while n < 8:
@@ -118,23 +139,28 @@ def printHeader():
             else:
                 f.write ("\n")
         f.write ("};\n")
-        
-        
-        if fr_num == 0:
-            print("> " + str(fr_num) + "\tframe written to \t'" + filename + "'\t\t input.size : " + str(frame.size) + "\tfinal.size : " + str(final.size))
-        print("> " + str(fr_num + 1) + "\tframe(s) written to \t'" + filename + "'\t\t input.size : " + str(frame.size) + "\tfinal.size : " + str(final.size))
+        print("> frame " + str(fr_num) + "\twritten to \t'" + filename + "'\t\t input.size : " + str(frame.size) + "\tfinal.size : " + str(final.size))
         fr_num = fr_num + 1
 
-    f.write("const unsigned char * const custom_bootscreen_animation[] PROGMEM = {")
+    f.write("\nconst unsigned char * const custom_bootscreen_animation[] PROGMEM = {\n\t")
     fr_tot = fr_num
     fr_num = 0
-    while fr_num <= fr_tot:
-        f.write("custom_start_bmp" + str(fr_num))
-        f.write(",\n\t")
-        fr_num = fr_num + 1
-    f.write("custom_start_bmp")
-    f.write("\n};\n")
-    print ("\n> " + str(fr_tot) + " name(s) of frame(s) in array written to " + filename)
+    loop_num = 0
+
+    while loop_num <= total_loops:
+        fr_num = 0
+        while fr_num <= fr_tot:
+            f.write("custom_start_bmp" + str(fr_num))
+            f.write(", ")
+            fr_num = fr_num + 1
+        f.write("custom_start_bmp,\n")
+
+        if loop_num < total_loops:
+            f.write('\t')
+        loop_num = loop_num + 1
+    f.write("};\n")
+
+    print ("\n> (" + str(fr_tot) + " frames * " + str(total_loops) + " loops) = " + str(fr_tot * total_loops) + " total frame(s) in array written to '" + filename + "'\n")
     f.write(('\n' * 2) +
         "/*" + '\n'
         "* **************************************************************************************************** *" + '\n'
@@ -151,12 +177,12 @@ def printHeader():
         "*/"
         )
 
-    print ("\n\n<<< closing " + str(gif))
+    print ("<<< closing " + str(gif) + " a.k.a. '" + gif_name + "'")
     gif.close()
     print ("> SUCCESS <")
-    print("<<< closing" + filename)
+    print("<<< closing '" + filename + "'")
     f.close()
     print ("> SUCCESS <")
 
 printHeader()
-
+sys.exit(0)
