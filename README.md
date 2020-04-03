@@ -18,7 +18,7 @@ Enjoy .
 ## Settings
 **At the top of the script you will find these variables**:
 Name 					| Type 		| Description
---------------|---------|----------------------------------------------------------------------
+:------------:|:-------:|:---------------------------------------------------------------------
 out_name			| string	|	the output file name
 gif_name      | string	|	the input file name
 frame_ms      | number	|	tells to Marlin frame duration in ms
